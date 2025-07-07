@@ -88,21 +88,19 @@ jobs:
           platforms: linux/arm64
           tags: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"
 
-      - name: Pull and Deploy App
+      - name: Deploy to Production (manual approval required)
         if: github.ref == 'refs/heads/main' && env.VERSION != 'latest'
         environment:
           name: production
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.REMOTE_MACHINE_IP }}
-          username: ${{ secrets.REMOTE_MACHINE_USER }}
-          key: ${{ secrets.REMOTE_MACHINE_KEY }}
-          port: ${{ secrets.REMOTE_MACHINE_PORT }}
-          script: |
+          url: http://your-production-url.com  # Optional
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.REMOTE_MACHINE_PORT }} -i /tmp/deploy_key ${{ secrets.REMOTE_MACHINE_USER }}@${{ secrets.REMOTE_MACHINE_IP }} << 'EOF'
             git pull https://github.com/${{ secrets.GIT_USERNAME }}/github-actions-cicd-project.git
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
             sed -i "s|version: \"latest\"|version: \"${{ env.VERSION }}\"|g" ./deployment.yaml
             sed -i "s|image: \"latest\"|image: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"|g" ./deployment.yaml
             echo "Modified deployment.yaml with version: ${{ env.VERSION }}"
             kubectl apply -f deployment.yaml
-            git reset --hard HEAD   # Reset working directory to last commit
+            git reset --hard HEAD
+          EOF
+        shell: bash
