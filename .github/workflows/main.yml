@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Analyze with SonarCloud
-        uses: SonarSource/sonarqube-scan-action@v2
+        uses: SonarSource/sonarcloud-github-action@v1.9.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -26,9 +26,10 @@ jobs:
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.PythonVersion=3.9
+            -Dsonar.python.version=3.9
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.verbose=true
+
 
   SNYK-StaticSecurity-Analysis:
       runs-on: ubuntu-latest
