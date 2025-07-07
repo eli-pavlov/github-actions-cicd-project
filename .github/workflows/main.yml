@@ -13,7 +13,6 @@ permissions:
 jobs:
   SonarCloud-CodeQuality-Analysis:
     runs-on: ubuntu-latest
-    needs: [SonarCloud-CodeQuality-Analysis, SNYK-StaticSecurity-Analysis]
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
