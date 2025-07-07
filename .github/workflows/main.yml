@@ -30,8 +30,6 @@ jobs:
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.verbose=true
 
-
-
   SNYK-StaticSecurity-Analysis:
       runs-on: ubuntu-latest
       steps:
