@@ -89,7 +89,9 @@ jobs:
           tags: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"
 
       - name: Pull and Deploy App
-        if: env.VERSION != 'latest'
+        if: github.ref == 'refs/heads/main' && env.VERSION != 'latest'
+        environment:
+          name: production
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_MACHINE_IP }}
