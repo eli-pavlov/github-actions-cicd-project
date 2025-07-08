@@ -30,7 +30,7 @@ jobs:
           pip install pytest coverage flake8
 
       - name: Run flake8 linting
-        run: flake8 /src/app.py
+        run: flake8 src/app.py
 
       - name: Run unit tests with coverage
         id: tests
