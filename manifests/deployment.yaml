@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: compliment-generator
-        image: "latest"
+        image: docker.io/elipavlov/rtproject:latest
         ports:
         - containerPort: 5000
         resources:
