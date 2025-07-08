@@ -1,3 +1,5 @@
+name: CI/CD Pipeline
+
 on:
   push:
     branches: [development, main]
@@ -9,12 +11,41 @@ permissions:
   pull-requests: read
 
 jobs:
+  Lint-and-Test:
+    runs-on: ubuntu-latest
+    outputs:
+      coverage-generated: ${{ steps.tests.outcome }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest coverage flake8
+
+      - name: Run flake8 linting
+        run: flake8 app.py
+
+      - name: Run unit tests with coverage
+        id: tests
+        run: |
+          coverage run -m pytest tests/
+          coverage xml
+
   SonarCloud-CodeQuality-Analysis:
     runs-on: ubuntu-latest
+    needs: Lint-and-Test
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Analyze with SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -30,6 +61,7 @@ jobs:
 
   SNYK-StaticSecurity-Analysis:
     runs-on: ubuntu-latest
+    needs: Lint-and-Test
     steps:
       - uses: actions/checkout@v4
       - name: Run Snyk to check IAC files for issues
@@ -43,14 +75,9 @@ jobs:
   Build-and-deploy:
     runs-on: ubuntu-latest
     needs: [SonarCloud-CodeQuality-Analysis, SNYK-StaticSecurity-Analysis]
-
-    # ✅ Only apply manual approval when deploying to main
     if: github.ref == 'refs/heads/main'
-
     environment:
       name: production
-      # required_reviewers and wait_timer configured in GitHub UI
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -87,20 +114,3 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
-
-
-      # - name: Pull and Deploy App
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.REMOTE_MACHINE_IP }}
-      #     username: ${{ secrets.REMOTE_MACHINE_USER }}
-      #     key: ${{ secrets.REMOTE_MACHINE_KEY }}
-      #     port: ${{ secrets.REMOTE_MACHINE_PORT }}
-      #     script: |
-      #       git pull https://github.com/${{ secrets.GIT_USERNAME }}/github-actions-cicd-project.git
-      #       docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
-      #       sed -i "s|version: \"latest\"|version: \"${{ env.VERSION }}\"|g" ./deployment.yaml
-      #       sed -i "s|image: \"latest\"|image: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"|g" ./deployment.yaml
-      #       echo "Modified deployment.yaml with version: ${{ env.VERSION }}"
-      #       kubectl apply -f deployment.yaml
-      #       git reset --hard HEAD
