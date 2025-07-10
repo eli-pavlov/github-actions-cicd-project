@@ -6,3 +6,7 @@ patches:
     target:
       kind: Deployment
       name: compliment-generator
+  - path: patch-service.yaml
+    target:
+      kind: Service
+      name: compliment-generator-service
