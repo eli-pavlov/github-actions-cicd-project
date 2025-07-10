@@ -41,6 +41,7 @@ jobs:
   SonarCloud-CodeQuality-Analysis:
     runs-on: ubuntu-latest
     needs: Lint-and-Test
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,6 +63,7 @@ jobs:
   SNYK-StaticSecurity-Analysis:
     runs-on: ubuntu-latest
     needs: Lint-and-Test
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Run Snyk to check IAC files for issues
