@@ -2,5 +2,8 @@
     "yaml.schemas": {
         "https://json.schemastore.org/github-action.json": "output:extension-output-ms-kubernetes-tools.vscode-kubernetes-tools-%231-Kubernetes",
         "kubernetes://schema/apps/v1%40deployment": "vscode-vfs://github/eli-pavlov/realtime-cicd-project/deployment.yaml"
-    }
+    },
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ]
 }
