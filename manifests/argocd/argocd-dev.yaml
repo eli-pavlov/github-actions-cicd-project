@@ -7,7 +7,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/elipavlov/rtproject
+    repoURL: https://github.com/eli-pavlov/github-actions-cicd-project
     targetRevision: development
     path: manifests/overlays/development
   destination:
