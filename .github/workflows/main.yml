@@ -1,105 +1,118 @@
-name: Deploy revised app to Kubernetes
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [development, main]
   pull_request:
-    branches: [ "master" ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   pull-requests: read
 
 jobs:
+  Lint-and-Test:
+    runs-on: ubuntu-latest
+    outputs:
+      coverage-generated: ${{ steps.tests.outcome }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest coverage flake8
+
+      - name: Run flake8 linting
+        run: flake8 src/app.py
+
+      - name: Run unit tests with coverage
+        id: tests
+        run: |
+          coverage run -m pytest tests/
+          coverage xml
+
   SonarCloud-CodeQuality-Analysis:
     runs-on: ubuntu-latest
+    needs: Lint-and-Test
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Analyze with SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Additional arguments for the sonarcloud scanner #
-          args:
+          args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.PythonVersion=3.9
+            -Dsonar.python.version=3.9
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.verbose=true
 
-
   SNYK-StaticSecurity-Analysis:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Run Snyk to check IAC files for issues
-          uses: snyk/actions/iac@master
-          continue-on-error: true
-          env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          with:
-            args: --report
+    runs-on: ubuntu-latest
+    needs: Lint-and-Test
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Snyk to check IAC files for issues
+        uses: snyk/actions/iac@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --report
 
   Build-and-deploy:
     runs-on: ubuntu-latest
     needs: [SonarCloud-CodeQuality-Analysis, SNYK-StaticSecurity-Analysis]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: setup node
+
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: '20.0'
 
       - name: Set application version
         run: |
-          VERSION=$(git log -1 --pretty=%B | grep -Eo '[0-9]+\.[0-9]+' || true)  # Capture digits separated by a dot
+          VERSION=$(git log -1 --pretty=%B | grep -Eo '[0-9]+\.[0-9]+' | head -n 1)
           if [[ -z "$VERSION" ]]; then
-            echo "No version found in commit message. Using 'latest' tag."
-            VERSION="latest"
+            VERSION=$(git rev-parse --short HEAD)
+            echo "No version found in commit. Using commit SHA: $VERSION"
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV  # Set environment variable #
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
-        if: env.VERSION != 'latest'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up QEMU (optional, for multi-arch builds)
-        if: env.VERSION != 'latest'
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx (optional, for multi-arch builds)
-        if: env.VERSION != 'latest'
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-          
-      - name: Build and Push Docker Image
-        if: env.VERSION != 'latest'
+
+      - name: Build and Push Multi-Arch Docker Image
         uses: docker/build-push-action@v4
         with:
           push: true
-          platforms: linux/arm64
-          tags: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"
-
-      - name: Pull and Deploy App
-        if: env.VERSION != 'latest'
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.REMOTE_MACHINE_IP }}
-          username: ${{ secrets.REMOTE_MACHINE_USER }}
-          key: ${{ secrets.REMOTE_MACHINE_KEY }}
-          port: ${{ secrets.REMOTE_MACHINE_PORT }}
-          script: |
-            git pull https://github.com/${{ secrets.GIT_USERNAME }}/github-actions-cicd-project.git
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
-            sed -i "s|version: \"latest\"|version: \"${{ env.VERSION }}\"|g" ./deployment.yaml
-            sed -i "s|image: \"latest\"|image: "${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest"|g" ./deployment.yaml
-            echo "Modified deployment.yaml with version: ${{ env.VERSION }}"
-            kubectl apply -f deployment.yaml
-            git reset --hard HEAD   # Reset working directory to last commit
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest

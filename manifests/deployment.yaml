@@ -5,15 +5,14 @@ metadata:
   labels:
     app: compliment-generator
     version: "latest"
-  annotations:
-    oci.oraclecloud.com/load-balancer-type: "lb"
 spec:
   selector:
     app: compliment-generator
   ports:
-  - port: 80
-    targetPort: 5000
-  type: ClusterIP
+    - port: 80
+      targetPort: 5000
+      nodePort: 30080  # Pick a port in range 30000–32767
+  type: NodePort
 
 ---
 apiVersion: apps/v1
@@ -42,7 +41,7 @@ spec:
     spec:
       containers:
       - name: compliment-generator
-        image: "latest"
+        image: docker.io/elipavlov/rtproject:latest
         ports:
         - containerPort: 5000
         resources:

@@ -24,11 +24,13 @@ compliments = [
     "Your DevOps practices are driving innovation and efficiency!",
 ]
 
+
 @app.route('/')
 def index():
     # Generate a random compliment
     compliment = random.choice(compliments)
     return render_template('index.html', compliment=compliment)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
