@@ -116,3 +116,29 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
+
+  Notify-Slack:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: Build-and-deploy
+    steps:
+      - name: Send Slack Notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ needs.Build-and-deploy.result }}"
+          if [[ "$STATUS" == "success" ]]; then
+            COLOR="#36a64f"
+            MESSAGE="✅ *Build and deploy succeeded* on *${{ github.ref_name }}*"
+          elif [[ "$STATUS" == "failure" ]]; then
+            COLOR="#ff0000"
+            MESSAGE="❌ *Build or deploy failed* on *${{ github.ref_name }}*"
+          else
+            COLOR="#cccccc"
+            MESSAGE="ℹ️ *Build result: $STATUS* on *${{ github.ref_name }}*"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"attachments\":[{\"color\":\"$COLOR\",\"text\":\"$MESSAGE\"}]}" \
+            $SLACK_WEBHOOK_URL
+
