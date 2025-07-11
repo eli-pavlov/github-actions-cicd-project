@@ -1,6 +1,6 @@
 <div align='center'>
 <img src="https://raw.githubusercontent.com/eli-pavlov/github-actions-cicd-project/master/docs/githubactions2.png" width=320 />
-<h1> GitHub Actions CI/CD Internship Project</h1>
+<h1> GitHub Actions CI/CD Project</h1>
 
 <p> A complete GitOps-based Kubernetes CI/CD pipeline using GitHub Actions, Argo CD, Docker, SonarCloud, and Snyk. </p>
 
@@ -21,6 +21,7 @@ $\~\$
 * [Project Diagram](#world_map-project-diagram)
 * [About the Project](#star2-about-the-project)
 * [CI/CD Workflow Overview](#gear-workflow-overview)
+* [How to Set It Up](#wrench-how-to-set-it-up)
 * [Project Structure](#open_file_folder-files)
 * [Secrets and Environments](#lock-secrets-and-environments)
 * [License](#warning-license)
@@ -44,10 +45,33 @@ This project delivers a production-grade CI/CD pipeline for a Python Flask web a
 **Key Decisions:**
 
 * **CI Tool: GitHub Actions** — Tight integration with GitHub, cost-effective, strong ecosystem.
+
+| Feature                  | Justification                                                                 |
+|--------------------------|-------------------------------------------------------------------------------|
+| 💰 **Cost-effective**     | Free for public repositories with generous free tier for private projects.    |
+| 🔗 **Native GitHub Integration** | Directly integrates with pull requests, branches, and commits. No external setup needed. |
+| 🧰 **Rich Ecosystem**       | Thousands of pre-built actions in the [GitHub Marketplace](https://github.com/marketplace/actions) for Docker, SonarCloud, Argo CD, and more. |
+| 👨‍💻 **Developer-Friendly** | Clean YAML configuration with commit history, rollback, and branch-based logic. |
+| 🔒 **Security**           | Secure handling of secrets and support for [GitHub Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments) with required approvals. |
+| ⚙️ **Scalability & Extensibility** | Supports parallel jobs, matrix builds, reusable workflows, and triggers on various GitHub events. |
+
+GitHub Actions was therefore the best choice to deliver:
+- A **fully automated CI/CD pipeline**,
+- With **clear visibility in the GitHub UI**,
+- And **minimal external tooling/setup** required.
+  
+$\~\$
+
+**Other tools used:**
+
 * **GitOps Tool: Argo CD** — Declarative Kubernetes deployment and version control.
 * **Code Quality: SonarCloud** — Industry-standard static analysis.
 * **Security: Snyk** — Detects vulnerabilities in IaC files.
-* **Branching Strategy:**
+
+  
+$\~\$
+
+**Branching Strategy:**
 
   * `development`: Triggers full CI/CD pipeline and deploys automatically to dev.
   * `main`: Manual approval required, triggers deployment to production via Argo CD.
@@ -93,6 +117,31 @@ $\~\$
 ### 6. **Slack Notification (Optional)**
 
 * Posts status to Slack via webhook after build and deploy steps.
+
+$\~\$
+
+## \:wrench: How to Set It Up
+
+### Prerequisites:
+
+* GitHub repository
+* DockerHub account
+* SonarCloud and Snyk accounts (Optional)
+* Kubernetes cluster with Argo CD installed and configured
+
+### Steps:
+
+1. **Fork or clone this repository**.
+2. **Add GitHub Secrets** (see [Secrets and Environments](#lock-secrets-and-environments)).
+3. **Install Argo CD** on your Kubernetes cluster (or use an existing instance).
+4. **Apply the Argo CD applications**:
+
+   ```bash
+   kubectl apply -f manifests/argocd/application-dev.yaml
+   kubectl apply -f manifests/argocd/application-prod.yaml
+   ```
+5. **Push to `development`** to auto-deploy to dev environment.
+6. **Merge to `main`** and approve via GitHub environment to deploy to production.
 
 $\~\$
 
