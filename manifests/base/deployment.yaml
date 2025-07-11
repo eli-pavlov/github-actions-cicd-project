@@ -6,7 +6,6 @@ metadata:
     app: compliment-generator
 spec:
   replicas: 1
-  revisionHistoryLimit: 2
   selector:
     matchLabels:
       app: compliment-generator
@@ -17,7 +16,7 @@ spec:
     spec:
       containers:
         - name: compliment-generator
-          image: placeholder  # Will be patched by overlays
+          image: placeholder  # Will be patched in overlays
           ports:
             - containerPort: 5000
           resources:
