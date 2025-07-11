@@ -1,161 +1,171 @@
 <div align='center'>
-<img src= "https://github.com/eli-pavlov/realtime-cicd-project/blob/master/docs/githubactions2.png" width=320 />
-<h1> GitHub Actions CI/CD Project</h1>
- 
-<p> Kubernetes web app deployment pipeline using Github Actions together with Security & Code quality analysis tools. </p>
+<img src="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/docs/githubactions2.png" width=320 />
+<h1> GitHub Actions CI/CD Internship Project</h1>
 
-<h4> <span> · </span> <a href="https://github.com/eli-pavlov/realtime-cicd-project/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/eli-pavlov/realtime-cicd-project/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/eli-pavlov/realtime-cicd-project/issues"> Request Feature </a> </h4>
+<p> A complete GitOps-based Kubernetes CI/CD pipeline using GitHub Actions, Argo CD, Docker, SonarCloud, and Snyk. </p>
 
-$~~$
+<h4> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/issues"> Request Feature </a> </h4>
+
+$\~\~\$
+
 </div>
 
-## :world_map: Project Diagram
+## \:world\_map: Project Diagram
 
-<img src= "https://github.com/eli-pavlov/realtime-cicd-project/blob/master/docs/rtproject-diagram.png" width=1080 />
+<img src="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/docs/rtproject-diagram.png" width=1080 />
 
+$\~\$
 
-$~$
+\:notebook\_with\_decorative\_cover: Table of Contents
 
- :notebook_with_decorative_cover: Table of Contents
- 
- - [Project Diagram](#world_map-project-diagram)
-- [About the Project](#star2-about-the-project)
-- [Project Files](#open_file_folder-files)
-- [License](#warning-license)
-- [Contact](#handshake-contact)
-- [Acknowledgements](#gem-acknowledgements)
+* [Project Diagram](#world_map-project-diagram)
+* [About the Project](#star2-about-the-project)
+* [CI/CD Workflow Overview](#gear-workflow-overview)
+* [Project Structure](#open_file_folder-files)
+* [Secrets and Environments](#lock-secrets-and-environments)
+* [License](#warning-license)
+* [Contact](#handshake-contact)
+* [Acknowledgements](#gem-acknowledgements)
 
+$\~\~\$
 
-$~~$
+## \:star2: About the Project
 
+This project delivers a production-grade CI/CD pipeline for a Python Flask web app, as part of a DevOps internship assignment.
 
-## :star2: About the Project
+**Goals:**
 
-This workflow automates the deployment process for a web application to a Kubernetes cluster. It integrates code quality analysis, static security checks, and versioning to ensure code quality and secure deployments.
+* Implement modern CI/CD practices using GitHub Actions.
+* Support both development and production deployment workflows.
+* Enforce code quality and security via SonarCloud and Snyk.
+* Deploy to Kubernetes clusters via GitOps using Argo CD.
+* Apply semantic Docker image tagging based on branch.
 
-**Features:**
+**Key Decisions:**
 
-- Automated Deployments: On push to the master branch or pull request merge, the workflow triggers a deployment process.<br>
-- Code quality Analysis: Leverages SonarCloud to analyze the codebase for potential issues and maintain code quality.<br>
-- Static Security Checks: Uses Snyk to scan infrastructure as code (IaC) files for vulnerabilities, enhancing overall security posture.<br>
-- Versioning: Extracts the version number from the commit message or defaults to "latest" for deployments.<br>
-- Multi-arch Builds (Optional): Supports building Docker images for multiple architectures using QEMU and Docker Buildx (enabled when a version other than "latest" is deployed).<br>
-- Secure Deployment: Requires secrets for Docker Hub login, remote machine access, and application name for secure storage.<br>
+* **CI Tool: GitHub Actions** — Tight integration with GitHub, cost-effective, strong ecosystem.
+* **GitOps Tool: Argo CD** — Declarative Kubernetes deployment and version control.
+* **Code Quality: SonarCloud** — Industry-standard static analysis.
+* **Security: Snyk** — Detects vulnerabilities in IaC files.
+* **Branching Strategy:**
 
-$~~$
+  * `development`: Triggers full CI/CD pipeline and deploys automatically to dev.
+  * `main`: Manual approval required, triggers deployment to production via Argo CD.
 
-**Workflow Breakdown:**
---
-**SonarCloud-CodeQuality-Analysis:**
+$\~\$
 
-Checks out the codebase with full history (fetch-depth: 0).<br>
-Analyzes the code using the SonarCloud action, providing required secrets (GITHUB_TOKEN and SONAR_TOKEN) via environment variables.<br>
-Additional arguments for the SonarCloud scanner can be specified in the args section (e.g., -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}).<br>
+## \:gear: CI/CD Workflow Overview
 
-**Snyk Static Application Security Testing**:
+### 1. **Lint-and-Test**
 
-Checks out the codebase.<br>
-Uses the Snyk action for IaC file scanning, providing the SNYK_TOKEN secret in the environment.<br>
-Includes the continue-on-error: true option to keep the workflow running even if Snyk finds issues. This allows for manual review.<br>
+* Installs dependencies.
+* Runs `flake8` for linting.
+* Executes unit tests via `pytest` with coverage report.
 
-**Build and deploy app (Requires successful completion of previous jobs):**
+### 2. **SonarCloud Analysis**
 
-Runs on Ubuntu runner.
-Checks out the codebase.
-Sets up Node.js version 20.0.
-Extracts the version number from the commit message using regular expressions or defaults to "latest" if not found.
-Sets the version as an environment variable ($VERSION).
-Logs in to Docker Hub (only for non-"latest" deployments) using the docker/login-action and provides Docker Hub username and token secrets.
-Sets up QEMU for multi-arch builds (optional, only for non-"latest" deployments).
-Sets up Docker Buildx for multi-arch builds (optional, only for non-"latest" deployments).
-Builds and pushes the Docker image (only for non-"latest" deployments) using the docker/build-push-action. Supports specific platforms and tags (e.g., linux/arm64).
-Pulls the latest Docker image and deploys the application to the Kubernetes cluster (only for non-"latest" deployments) using the appleboy/ssh-action. Requires secrets for remote machine IP, username, key, and port.
-Updates the deployment.yaml file with the extracted version and the Docker image reference.
-Applies the modified deployment.yaml to the Kubernetes cluster using kubectl.
-Resets the working directory to the last commit using git reset --hard HEAD to ensure a clean state after deployment.<br>
+* Static code quality scan with full Git history.
+* Uses SonarCloud GitHub action with secrets.
 
-**Requirements:**
+### 3. **Snyk IaC Scan**
 
-A GitHub repository with your codebase.<br>
-A Kubernetes cluster.<br>
-A Docker Hub account.<br>
-A SonarCloud account.<br>
-A Snyk account.<br>
+* Analyzes Kubernetes manifests and Dockerfile.
+* Ignores scan failures to allow developer review.
 
+### 4. **Build and Push Docker Image**
 
-**Secrets configured in your GitHub repository for:**<br>
-(Repository --> Settings--> Secrets and Variables--> Actions--> New repository secret)<br>
-$---------------------------------------$
+* Builds multi-arch Docker images using QEMU and Buildx.
+* Image tag:
 
-**APP_NAME:** | The name of the application as used to create the Dockerhub Image
+  * `dev` for development branch
+  * `latest` for production (main)
+* Pushed to Docker Hub.
 
-**DOCKERHUB_TOKEN:** The authentication API token to be used instead of password.
+### 5. **Argo CD Deployment**
 
-**DOCKERHUB_USERNAME:** DockerHub Username used for login.
+* Dev deploys automatically after push to `development`.
+* Prod deploys automatically after push to `main`.
+* Argo CD watches the corresponding overlay path:
 
-**REMOTE_MACHINE_IP:** The IP of the remote kubernetes cluster control server.
+  * `/manifests/overlays/development`
+  * `/manifests/overlays/production`
 
-**REMOTE_MACHINE_KEY:** The private SSH key of the remote machine. Entered directly as a text into the secret.
+### 6. **Slack Notification (Optional)**
 
-**REMOTE_MACHINE_PORT:** The port used connecting via SSH to the remote machine.
+* Posts status to Slack via webhook after build and deploy steps.
 
-**REMOTE_MACHINE_USER:** Username used to connecto to remote mahcine.
+$\~\$
 
-**SNYK_TOKEN:** Project token obtained from "snyk.io".
+## \:open\_file\_folder: Project Structure
 
-**SONAR_ORGANIZATION:** Organizaton name obtained from "sonarcloud.io".
+```
+github-actions-cicd-project/
+├── Dockerfile
+├── README.md
+├── requirements.txt
+├── src/
+│   ├── app.py
+│   ├── __init__.py
+│   └── templates/index.html
+├── tests/test_app.py
+├── manifests/
+│   ├── base/             # Base Kubernetes Deployment/Service
+│   ├── overlays/
+│   │   ├── development/  # Patched for dev (nodePort 30070)
+│   │   └── production/   # Patched for prod (nodePort 30080)
+│   └── argocd/           # Argo CD Application manifests
+├── docs/
+│   ├── *.png/pdf
+└── .github/workflows/main.yml
+```
 
-**SONAR_PROJECT_KEY:** Project keyy obtained from "sonarcloud.io".
+$\~\$
 
-**SONAR_TOKEN:** Secret token obtained from "sonarcloud.io".
-$~~$
+## \:lock: Secrets and Environments
 
+> Add these secrets under **GitHub repo settings** > **Secrets and variables** > **Actions**
 
-$~$
+| Secret Key           | Description                           |
+| -------------------- | ------------------------------------- |
+| `APP_NAME`           | Docker image/app name                 |
+| `DOCKERHUB_USERNAME` | Docker Hub username                   |
+| `DOCKERHUB_TOKEN`    | Docker Hub token                      |
+| `SONAR_TOKEN`        | SonarCloud token                      |
+| `SONAR_ORGANIZATION` | SonarCloud organization               |
+| `SONAR_PROJECT_KEY`  | SonarCloud project key                |
+| `SNYK_TOKEN`         | Snyk token                            |
+| `SLACK_WEBHOOK_URL`  | (Optional) Slack Incoming Webhook URL |
 
+**GitHub Environments**:
 
+* **development**: Auto-deploys when code is pushed to `development`.
+* **production**: Requires manual approval before executing workflow (set in GitHub).
 
-## :open_file_folder: Files
+$\~\$
 
-- **./github/workflows/main.yml:**   Main GitHub Actions playbook file.
+## \:warning: License
 
-- **src/app.py:**   Flask Python App file.
- 
-- **templates/index.html:**   index.html template.
- 
-- **Dockerfile:**   Docker image build manifest file.
- 
-- **deployment.yaml:**   Kubernetes deployment manifest.
- 
-- **/docs:**   Directory containing media files.
- 
-- **LICENSE.txt:**   License file.
- 
-- **README.md:**   Readme file formatted for Github, with information about the chart.
+Distributed under the Apache 2.0 License.
 
+Please note: SonarCloud, Snyk, DockerHub, and Argo CD each have their own licensing terms.
 
-$~$
+$\~\$
 
+## \:handshake: Contact
 
-## :warning: License
+**Eli Pavlov**
+[www.weblightenment.com](https://www.weblightenment.com)
+[admin@weblightenment.com](mailto:admin@weblightenment.com)
 
-Distributed under the Apache License 2.0 License.
+Project Repo: [github-actions-cicd-project](https://github.com/eli-pavlov/github-actions-cicd-project)
 
-Please note that Kubernetes SonarCloud and Snyk have their own respective licenses. 
+$\~\$
 
-See LICENSE.txt for more information. #
-$~$
+## \:gem: Acknowledgements
 
-## :handshake: Contact
-
-Eli Pavlov - www.weblightenment.com - admin@weblightenment.com
-
-Project Link: https://github.com/eli-pavlov/realtimne-cicd-project.git
-$~$
-
-## :gem: Acknowledgements and thanks to:
-- [Kubernetes.io](https://kubernetes.io/docs)
-- [SonarCloud](https://www.sonarcloud.io)
-- [Snyk](https://www.snyk.io)
-- [DockerHub](https://hub.docker.com)
-- [Awesome Github Readme File Generator](https://www.genreadme.cloud/)
+* [Kubernetes.io](https://kubernetes.io/docs)
+* [SonarCloud](https://www.sonarcloud.io)
+* [Snyk](https://www.snyk.io)
+* [DockerHub](https://hub.docker.com)
+* [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+* [Awesome GitHub README Generator](https://www.genreadme.cloud/)
