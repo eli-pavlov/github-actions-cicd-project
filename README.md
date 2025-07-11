@@ -59,10 +59,8 @@ GitHub Actions was therefore the best choice to deliver:
 - A **fully automated CI/CD pipeline**,
 - With **clear visibility in the GitHub UI**,
 - And **minimal external tooling/setup** required.
-
   
 $\~\$
-
 
 **Other tools used:**
 
@@ -73,12 +71,10 @@ $\~\$
   
 $\~\$
 
-
-* **Branching Strategy:**
+**Branching Strategy:**
 
   * `development`: Triggers full CI/CD pipeline and deploys automatically to dev.
   * `main`: Manual approval required, triggers deployment to production via Argo CD.
-
 
 $\~\$
 
