@@ -1,4 +1,3 @@
-#test
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +14,7 @@ spec:
           image: docker.io/elipavlov/rtproject:dev
           resources:
             requests:
-              cpu: "100m"
+              cpu: "200m"
               memory: "128Mi"
             limits:
               cpu: "500m"
