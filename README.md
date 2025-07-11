@@ -21,6 +21,7 @@ $\~\$
 * [Project Diagram](#world_map-project-diagram)
 * [About the Project](#star2-about-the-project)
 * [CI/CD Workflow Overview](#gear-workflow-overview)
+* [How to Set It Up](#wrench-how-to-set-it-up)
 * [Project Structure](#open_file_folder-files)
 * [Secrets and Environments](#lock-secrets-and-environments)
 * [License](#warning-license)
@@ -93,6 +94,31 @@ $\~\$
 ### 6. **Slack Notification (Optional)**
 
 * Posts status to Slack via webhook after build and deploy steps.
+
+$\~\$
+
+## \:wrench: How to Set It Up
+
+### Prerequisites:
+
+* GitHub repository
+* DockerHub account
+* SonarCloud and Snyk accounts
+* Kubernetes cluster with Argo CD installed and configured
+
+### Steps:
+
+1. **Fork or clone this repository**.
+2. **Add GitHub Secrets** (see [Secrets and Environments](#lock-secrets-and-environments)).
+3. **Install Argo CD** on your Kubernetes cluster (or use an existing instance).
+4. **Apply the Argo CD applications**:
+
+   ```bash
+   kubectl apply -f manifests/argocd/application-dev.yaml
+   kubectl apply -f manifests/argocd/application-prod.yaml
+   ```
+5. **Push to `development`** to auto-deploy to dev environment.
+6. **Merge to `main`** and approve via GitHub environment to deploy to production.
 
 $\~\$
 
