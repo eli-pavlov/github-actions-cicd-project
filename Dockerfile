@@ -5,6 +5,7 @@ FROM python:3.13.4-alpine
 WORKDIR /app
 
 # Copy the Flask app code into the container
+COPY requirements.txt /app/
 COPY src/app.py /app/
 COPY src/templates/index.html /app/templates/
 
