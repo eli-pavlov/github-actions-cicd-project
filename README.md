@@ -59,6 +59,10 @@ GitHub Actions was therefore the best choice to deliver:
 - A **fully automated CI/CD pipeline**,
 - With **clear visibility in the GitHub UI**,
 - And **minimal external tooling/setup** required.
+
+**Other tools used:**
+
+
 * **GitOps Tool: Argo CD** — Declarative Kubernetes deployment and version control.
 * **Code Quality: SonarCloud** — Industry-standard static analysis.
 * **Security: Snyk** — Detects vulnerabilities in IaC files.
