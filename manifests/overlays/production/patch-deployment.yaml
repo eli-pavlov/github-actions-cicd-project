@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: compliment-generator
 spec:
-  replicas: 4
   selector:  
     matchLabels:
       app: compliment-generator
