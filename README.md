@@ -45,6 +45,20 @@ This project delivers a production-grade CI/CD pipeline for a Python Flask web a
 **Key Decisions:**
 
 * **CI Tool: GitHub Actions** — Tight integration with GitHub, cost-effective, strong ecosystem.
+
+| Feature                  | Justification                                                                 |
+|--------------------------|-------------------------------------------------------------------------------|
+| 💰 **Cost-effective**     | Free for public repositories with generous free tier for private projects.    |
+| 🔗 **Native GitHub Integration** | Directly integrates with pull requests, branches, and commits. No external setup needed. |
+| 🧰 **Rich Ecosystem**       | Thousands of pre-built actions in the [GitHub Marketplace](https://github.com/marketplace/actions) for Docker, SonarCloud, Argo CD, and more. |
+| 👨‍💻 **Developer-Friendly** | Clean YAML configuration with commit history, rollback, and branch-based logic. |
+| 🔒 **Security**           | Secure handling of secrets and support for [GitHub Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments) with required approvals. |
+| ⚙️ **Scalability & Extensibility** | Supports parallel jobs, matrix builds, reusable workflows, and triggers on various GitHub events. |
+
+GitHub Actions was therefore the best choice to deliver:
+- A **fully automated CI/CD pipeline**,
+- With **clear visibility in the GitHub UI**,
+- And **minimal external tooling/setup** required.
 * **GitOps Tool: Argo CD** — Declarative Kubernetes deployment and version control.
 * **Code Quality: SonarCloud** — Industry-standard static analysis.
 * **Security: Snyk** — Detects vulnerabilities in IaC files.
