@@ -6,31 +6,31 @@
 
 <h4> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/README.md"> Documentation </a> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/issues"> Report Bug </a> <span> · </span> <a href="https://github.com/eli-pavlov/github-actions-cicd-project/issues"> Request Feature </a> </h4>
 
-~~~
+$\~\~\$
 
 </div>
 
-## Project Diagram
+## \:world\_map: Project Diagram
 
 <img src="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/docs/rtproject-diagram.png" width=1080 />
 
-~~~
+$\~\$
 
-## Table of Contents
+\:notebook\_with\_decorative\_cover: Table of Contents
 
-* [Project Diagram](#project-diagram)
-* [About the Project](#about-the-project)
-* [CI/CD Workflow Overview](#cicd-workflow-overview)
-* [How to Set It Up](#how-to-set-it-up)
-* [Project Structure](#project-structure)
-* [Secrets and Environments](#secrets-and-environments)
-* [License](#license)
-* [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
+* [Project Diagram](#world_map-project-diagram)
+* [About the Project](#star2-about-the-project)
+* [CI/CD Workflow Overview](#gear-workflow-overview)
+* [How to Set It Up](#wrench-how-to-set-it-up)
+* [Project Structure](#open_file_folder-files)
+* [Secrets and Environments](#lock-secrets-and-environments)
+* [License](#warning-license)
+* [Contact](#handshake-contact)
+* [Acknowledgements](#gem-acknowledgements)
 
-~~~
+$\~\~\$
 
-## About the Project
+## \:star2: About the Project
 
 This project delivers a production-grade CI/CD pipeline for a Python Flask web app, as part of a DevOps internship assignment.
 
@@ -44,102 +44,108 @@ This project delivers a production-grade CI/CD pipeline for a Python Flask web a
 
 **Key Decisions:**
 
-**CI Tool: GitHub Actions**
+* **CI Tool: GitHub Actions** — Tight integration with GitHub, cost-effective, strong ecosystem.
 
-GitHub Actions was selected for its integration, ecosystem, and simplicity. Here’s why:
+| Feature                  | Justification                                                                 |
+|--------------------------|-------------------------------------------------------------------------------|
+| 💰 **Cost-effective**     | Free for public repositories with generous free tier for private projects.    |
+| 🔗 **Native GitHub Integration** | Directly integrates with pull requests, branches, and commits. No external setup needed. |
+| 🧰 **Rich Ecosystem**       | Thousands of pre-built actions in the [GitHub Marketplace](https://github.com/marketplace/actions) for Docker, SonarCloud, Argo CD, and more. |
+| 👨‍💻 **Developer-Friendly** | Clean YAML configuration with commit history, rollback, and branch-based logic. |
+| 🔒 **Security**           | Secure handling of secrets and support for [GitHub Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments) with required approvals. |
+| ⚙️ **Scalability & Extensibility** | Supports parallel jobs, matrix builds, reusable workflows, and triggers on various GitHub events. |
 
-- **Cost-effective**: Free for public repos, generous private repo tier.
-- **Native GitHub Integration**: Tightly integrated with PRs, branches, commits — no external setup needed.
-- **Rich Ecosystem**: Thousands of prebuilt actions on the [GitHub Marketplace](https://github.com/marketplace/actions) for Docker, SonarCloud, Argo CD, and more.
-- **Developer-Friendly**: YAML-based config with commit history, rollback, and branch logic.
-- **Security**: Secure secrets management and support for [GitHub Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments) with approval gates.
-- **Scalability & Extensibility**: Supports parallel jobs, matrix builds, reusable workflows, and various event triggers.
-
-This makes GitHub Actions the best choice for:
-- A fully automated CI/CD pipeline.
-- Clear visibility in the GitHub UI.
-- Minimal external tooling/setup.
+GitHub Actions was therefore the best choice to deliver:
+- A **fully automated CI/CD pipeline**,
+- With **clear visibility in the GitHub UI**,
+- And **minimal external tooling/setup** required.
+  
+$\~\$
 
 **Other tools used:**
 
-* Argo CD — Declarative Kubernetes deployment (GitOps).
-* SonarCloud — Static code analysis.
-* Snyk — Security scanning of IaC and Dockerfiles.
+* **GitOps Tool: Argo CD** — Declarative Kubernetes deployment and version control.
+* **Code Quality: SonarCloud** — Industry-standard static analysis.
+* **Security: Snyk** — Detects vulnerabilities in IaC files.
+
+  
+$\~\$
 
 **Branching Strategy:**
 
-* `development`: Triggers full CI/CD pipeline and auto-deploys to development.
-* `main`: Requires manual approval and deploys to production via Argo CD.
+  * `development`: Triggers full CI/CD pipeline and deploys automatically to dev.
+  * `main`: Manual approval required, triggers deployment to production via Argo CD.
 
-~~~
+$\~\$
 
-## CI/CD Workflow Overview
+## \:gear: CI/CD Workflow Overview
 
-### 1. Lint and Test
+### 1. **Lint-and-Test**
 
-- Installs dependencies.
-- Runs `flake8` for linting.
-- Runs unit tests using `pytest` and generates a coverage report.
+* Installs dependencies.
+* Runs `flake8` for linting.
+* Executes unit tests via `pytest` with coverage report.
 
-### 2. SonarCloud Analysis
+### 2. **SonarCloud Analysis**
 
-- Performs static code quality scanning using SonarCloud.
-- Uses a GitHub Action with appropriate secrets for secure access.
+* Static code quality scan with full Git history.
+* Uses SonarCloud GitHub action with secrets.
 
-### 3. Snyk IaC Scan
+### 3. **Snyk IaC Scan**
 
-- Scans Kubernetes manifests and the Dockerfile for security vulnerabilities.
-- Failures are ignored to allow review and not block the pipeline.
+* Analyzes Kubernetes manifests and Dockerfile.
+* Ignores scan failures to allow developer review.
 
-### 4. Build and Push Docker Image
+### 4. **Build and Push Docker Image**
 
-- Builds multi-architecture images using QEMU and Buildx.
-- Tags:
-  - `dev` for development branch
-  - `latest` for main (production) branch
-- Pushes the image to Docker Hub.
+* Builds multi-arch Docker images using QEMU and Buildx.
+* Image tag:
 
-### 5. Argo CD Deployment
+  * `dev` for development branch
+  * `latest` for production (main)
+* Pushed to Docker Hub.
 
-- Development: Auto-deploys after code is pushed to the `development` branch.
-- Production: Deploys after push to `main`, but requires manual approval.
-- Argo CD monitors the correct Kustomize overlay path:
-  - `/manifests/overlays/development`
-  - `/manifests/overlays/production`
+### 5. **Argo CD Deployment**
 
-### 6. Slack Notification (Optional)
+* Dev deploys automatically after push to `development`.
+* Prod deploys automatically after push to `main`.
+* Argo CD watches the corresponding overlay path:
 
-- Sends build and deployment status notifications to Slack using a webhook.
+  * `/manifests/overlays/development`
+  * `/manifests/overlays/production`
 
-~~~
+### 6. **Slack Notification (Optional)**
 
-## How to Set It Up
+* Posts status to Slack via webhook after build and deploy steps.
+
+$\~\$
+
+## \:wrench: How to Set It Up
 
 ### Prerequisites:
 
-- GitHub repository
-- DockerHub account
-- SonarCloud and Snyk accounts (optional)
-- Kubernetes cluster with Argo CD installed and configured
+* GitHub repository
+* DockerHub account
+* SonarCloud and Snyk accounts (Optional)
+* Kubernetes cluster with Argo CD installed and configured
 
 ### Steps:
 
-1. Fork or clone this repository.
-2. Add GitHub Secrets (see [Secrets and Environments](#secrets-and-environments)).
-3. Install Argo CD on your Kubernetes cluster (or use an existing one).
-4. Apply the Argo CD applications:
+1. **Fork or clone this repository**.
+2. **Add GitHub Secrets** (see [Secrets and Environments](#lock-secrets-and-environments)).
+3. **Install Argo CD** on your Kubernetes cluster (or use an existing instance).
+4. **Apply the Argo CD applications**:
 
    ```bash
    kubectl apply -f manifests/argocd/application-dev.yaml
    kubectl apply -f manifests/argocd/application-prod.yaml
    ```
+5. **Push to `development`** to auto-deploy to dev environment.
+6. **Merge to `main`** and approve via GitHub environment to deploy to production.
 
-5. Push to `development` to auto-deploy to the dev environment.
-6. Merge to `main` and approve via GitHub Environment to deploy to production.
+$\~\$
 
-~~~
-
-## Project Structure
+## \:open\_file\_folder: Project Structure
 
 ```
 github-actions-cicd-project/
@@ -162,53 +168,53 @@ github-actions-cicd-project/
 └── .github/workflows/main.yml
 ```
 
-~~~
+$\~\$
 
-## Secrets and Environments
+## \:lock: Secrets and Environments
 
 > Add these secrets under **GitHub repo settings** > **Secrets and variables** > **Actions**
 
-Secrets to set:
+| Secret Key           | Description                           |
+| -------------------- | ------------------------------------- |
+| `APP_NAME`           | Docker image/app name                 |
+| `DOCKERHUB_USERNAME` | Docker Hub username                   |
+| `DOCKERHUB_TOKEN`    | Docker Hub token                      |
+| `SONAR_TOKEN`        | SonarCloud token                      |
+| `SONAR_ORGANIZATION` | SonarCloud organization               |
+| `SONAR_PROJECT_KEY`  | SonarCloud project key                |
+| `SNYK_TOKEN`         | Snyk token                            |
+| `SLACK_WEBHOOK_URL`  | (Optional) Slack Incoming Webhook URL |
 
-- `APP_NAME`: Docker image/app name
-- `DOCKERHUB_USERNAME`: Docker Hub username
-- `DOCKERHUB_TOKEN`: Docker Hub token
-- `SONAR_TOKEN`: SonarCloud token
-- `SONAR_ORGANIZATION`: SonarCloud organization
-- `SONAR_PROJECT_KEY`: SonarCloud project key
-- `SNYK_TOKEN`: Snyk token
-- `SLACK_WEBHOOK_URL`: (Optional) Slack webhook for notifications
+**GitHub Environments**:
 
-GitHub Environments:
+* **development**: Auto-deploys when code is pushed to `development`.
+* **production**: Requires manual approval before executing workflow (set in GitHub).
 
-- **development**: Auto-deploys when code is pushed to `development`.
-- **production**: Requires manual approval before deployment (configured in GitHub).
+$\~\$
 
-~~~
-
-## License
+## \:warning: License
 
 Distributed under the Apache 2.0 License.
 
 Please note: SonarCloud, Snyk, DockerHub, and Argo CD each have their own licensing terms.
 
-~~~
+$\~\$
 
-## Contact
+## \:handshake: Contact
 
-**Eli Pavlov**  
-[www.weblightenment.com](https://www.weblightenment.com)  
-[admin@weblightenment.com](mailto:admin@weblightenment.com)  
+**Eli Pavlov**
+[www.weblightenment.com](https://www.weblightenment.com)
+[admin@weblightenment.com](mailto:admin@weblightenment.com)
 
 Project Repo: [github-actions-cicd-project](https://github.com/eli-pavlov/github-actions-cicd-project)
 
-~~~
+$\~\$
 
-## Acknowledgements
+## \:gem: Acknowledgements
 
-- [Kubernetes.io](https://kubernetes.io/docs)
-- [SonarCloud](https://www.sonarcloud.io)
-- [Snyk](https://www.snyk.io)
-- [DockerHub](https://hub.docker.com)
-- [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
-- [Awesome GitHub README Generator](https://www.genreadme.cloud/)
+* [Kubernetes.io](https://kubernetes.io/docs)
+* [SonarCloud](https://www.sonarcloud.io)
+* [Snyk](https://www.snyk.io)
+* [DockerHub](https://hub.docker.com)
+* [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+* [Awesome GitHub README Generator](https://www.genreadme.cloud/)
