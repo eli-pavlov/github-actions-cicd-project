@@ -1,6 +1,6 @@
 <div align='center'>
 <img src="https://raw.githubusercontent.com/eli-pavlov/github-actions-cicd-project/master/docs/githubactions2.png" width=320 />
-<h1> GitHub Actions CI/CD Internship Project</h1>
+<h1> GitHub Actions CI/CD Project</h1>
 
 <p> A complete GitOps-based Kubernetes CI/CD pipeline using GitHub Actions, Argo CD, Docker, SonarCloud, and Snyk. </p>
 
