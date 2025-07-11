@@ -9,7 +9,7 @@ COPY src/app.py /app/
 COPY src/templates/index.html /app/templates/
 
 # Install Flask
-RUN pip install -no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 # Expose the Flask port
 EXPOSE 5000
 
