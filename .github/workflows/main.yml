@@ -141,4 +141,4 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"attachments\":[{\"color\":\"$COLOR\",\"text\":\"$MESSAGE\"}]}" \
             $SLACK_WEBHOOK_URL
-
+            
