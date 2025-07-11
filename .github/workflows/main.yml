@@ -1,5 +1,4 @@
 name: CI/CD Pipeline
-#test
 on:
   push:
     branches: [development, main]
