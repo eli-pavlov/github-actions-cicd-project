@@ -103,7 +103,7 @@ $\~\$
 
 * GitHub repository
 * DockerHub account
-* SonarCloud and Snyk accounts
+* SonarCloud and Snyk accounts (Optional)
 * Kubernetes cluster with Argo CD installed and configured
 
 ### Steps:
