@@ -21,8 +21,22 @@ def test_compliment_changes_on_refresh():
     for _ in range(5):
         response = client.get('/')
         soup = BeautifulSoup(response.data, 'html.parser')
-        compliment = soup.find('h1')  # assuming compliment is inside <h1>
+        compliment = soup.find('p')  # changed from h1 to p
         if compliment:
             compliments.add(compliment.text.strip())
-    # Expect at least 2 different compliments
     assert len(compliments) >= 2
+
+
+def test_404_page():
+    client = app.test_client()
+    response = client.get('/nonexistent')
+    assert response.status_code == 404
+
+
+def test_compliment_is_non_empty():
+    client = app.test_client()
+    response = client.get('/')
+    soup = BeautifulSoup(response.data, 'html.parser')
+    compliment = soup.find('p')
+    assert compliment and compliment.text.strip() != ""
+
