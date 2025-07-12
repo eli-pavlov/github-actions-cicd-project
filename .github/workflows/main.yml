@@ -117,6 +117,27 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:${{ env.TAG }}
+    
+      - name: Update image in manifests repo
+        run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          ENVIRONMENT="development"
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            ENVIRONMENT="production"
+          fi
+
+          git config --global user.email "ci@github.com"
+          git config --global user.name "GitHub Actions"
+
+          git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/eli-pavlov/github-actions-cicd-manifests.git
+          cd github-actions-cicd-manifests/manifests/overlays/$ENVIRONMENT
+
+          # Update image tag using kustomize
+          kustomize edit set image ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:${{ env.TAG }}
+
+          git add kustomization.yaml
+          git commit -m "CI: Update image tag to '${{ env.TAG }}' (${{ env.VERSION }}) for $ENVIRONMENT"
+          git push
 
   Notify-Slack:
     runs-on: ubuntu-latest
