@@ -39,7 +39,7 @@ $\~\~\$
 
 ## \:star2: About the Project
 
-This project delivers a **production-grade, end-to-end CI/CD pipeline** for a Python Flask web app as part of a DevOps internship assignment.
+This project delivers an **end-to-end CI/CD pipeline** for a Python Flask web app.
 
 **Key Features & Goals:**
 
