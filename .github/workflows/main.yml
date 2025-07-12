@@ -1,5 +1,5 @@
-#test
 name: CI/CD Pipeline
+
 on:
   push:
     branches: [development, main]
@@ -83,11 +83,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.0'
-
       - name: Set image tag and version
         run: |
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
@@ -118,6 +113,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:${{ env.TAG }}
     
+      # --- Kustomize Install ---
+      - name: Install kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      # --- UPDATE IMAGE IN MANIFESTS REPO ---
       - name: Update image in manifests repo
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
@@ -132,7 +134,7 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/eli-pavlov/github-actions-cicd-manifests.git
           cd github-actions-cicd-manifests/manifests/overlays/$ENVIRONMENT
 
-          # Update image tag using kustomize
+          # --- Kustomize: update image tag! ---
           kustomize edit set image ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:${{ env.TAG }}
 
           git add kustomization.yaml
@@ -163,4 +165,3 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"attachments\":[{\"color\":\"$COLOR\",\"text\":\"$MESSAGE\"}]}" \
             $SLACK_WEBHOOK_URL
-            
