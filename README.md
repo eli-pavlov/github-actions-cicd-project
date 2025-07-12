@@ -19,7 +19,7 @@ $\~\~\$
 
 ## \:world\_map: Project Diagram
 
-<img src="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/docs/roject-diagram.jpg" width=1080 />
+<img src="https://github.com/eli-pavlov/github-actions-cicd-project/blob/master/docs/project-diagram.jpg" width=1080 />
 
 $\~\~\$
 
