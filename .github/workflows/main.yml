@@ -70,8 +70,6 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --report
 
   Build-and-deploy:
     runs-on: ubuntu-latest
