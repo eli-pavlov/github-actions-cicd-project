@@ -15,7 +15,7 @@ app = Flask(__name__)
 # ]
 
 compliments = [
-    "Your automation skills are top-notch!",
+    "Your automation skills are super top-notch!",
     "You're a master of continuous integration and deployment!",
     "Your infrastructure as code is flawless!",
     "You're a wizard with container orchestration!",
